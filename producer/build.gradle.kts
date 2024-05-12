@@ -1,5 +1,6 @@
 plugins {
-    id("java")
+    kotlin("jvm") version "1.8.0"
+    application
 }
 
 group = "org.example"
@@ -10,10 +11,18 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+    implementation("org.apache.kafka:kafka-clients:3.5.2")
+    testImplementation(kotlin("test"))
 }
 
-tasks.getByName<Test>("test") {
+tasks.test {
     useJUnitPlatform()
+}
+
+kotlin {
+    jvmToolchain(8)
+}
+
+application {
+    mainClass.set("MainKt")
 }
