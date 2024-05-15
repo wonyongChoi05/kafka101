@@ -2,6 +2,8 @@ import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig.*
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
+import java.time.LocalDateTime
+import java.time.LocalDateTime.*
 import java.util.*
 import kotlin.random.Random
 
@@ -14,7 +16,8 @@ fun main(args: Array<String>) {
 
     val kafkaProducer: KafkaProducer<String, String> = KafkaProducer(properties)
 
-    val words = listOf("apple", "banana", "orange", "grape", "melon", "kiwi", "strawberry", "pineapple", "peach", "plum")
+    val words =
+        listOf("apple", "banana", "orange", "grape", "melon", "kiwi", "strawberry", "pineapple", "peach", "plum")
 
     val random = Random(System.currentTimeMillis())
     val timer = Timer()
@@ -23,15 +26,17 @@ fun main(args: Array<String>) {
     timer.scheduleAtFixedRate(object : TimerTask() {
         override fun run() {
             val number = random.nextInt(1, 10001)
-            val word = words[random.nextInt(words.size)]
-            val record: ProducerRecord<String, String> = ProducerRecord("test-topic", number.toString(), word)
-            kafkaProducer.send(record)
-            println("Sent message: $number -> $word")
+            for (i: Int in 1..number) {
+                val word = words[random.nextInt(words.size)]
+                val record: ProducerRecord<String, String> = ProducerRecord("test-topic", now().hour.toString(), word)
+                kafkaProducer.send(record)
+                println("Sent message: $number -> $word")
+            }
         }
     }, 0, hour)
 
     println("Producer started. Press any key to stop...")
-    readLine()
+    readlnOrNull()
 
     timer.cancel()
     kafkaProducer.close()
