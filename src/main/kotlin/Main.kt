@@ -25,12 +25,15 @@ fun main(args: Array<String>) {
 
     timer.scheduleAtFixedRate(object : TimerTask() {
         override fun run() {
-            val number = random.nextInt(1, 10001)
-            for (i: Int in 1..number) {
-                val word = words[random.nextInt(words.size)]
-                val record: ProducerRecord<String, String> = ProducerRecord("test-topic", now().hour.toString(), word)
-                kafkaProducer.send(record)
-                println("Sent message: $number -> $word")
+            val now = now()
+            if (now.minute == 0 && now.second == 0) {
+                val number = random.nextInt(1, 10001)
+                for (i: Int in 1..number) {
+                    val word = words[random.nextInt(words.size)]
+                    val record: ProducerRecord<String, String> = ProducerRecord("test-topic", now.hour.toString(), word)
+                    kafkaProducer.send(record)
+                    println("Sent message: $number -> $word")
+                }
             }
         }
     }, 0, hour)
