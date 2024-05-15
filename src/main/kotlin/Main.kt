@@ -3,6 +3,7 @@ import org.apache.kafka.clients.producer.ProducerConfig.*
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import java.util.*
+import kotlin.random.Random
 
 fun main(args: Array<String>) {
     val properties = Properties()
@@ -12,11 +13,27 @@ fun main(args: Array<String>) {
     properties.setProperty(ACKS_CONFIG, "1")
 
     val kafkaProducer: KafkaProducer<String, String> = KafkaProducer(properties)
-    val record: ProducerRecord<String, String> = ProducerRecord("test-topic", "key", "test-value")
 
-    println("record : $record")
-    println("started")
-    kafkaProducer.send(record)
-    println("completed")
+    val words = listOf("apple", "banana", "orange", "grape", "melon", "kiwi", "strawberry", "pineapple", "peach", "plum")
+
+    val random = Random(System.currentTimeMillis())
+    val timer = Timer()
+    val hour = 3600000L
+
+    timer.scheduleAtFixedRate(object : TimerTask() {
+        override fun run() {
+            val number = random.nextInt(1, 10001)
+            val word = words[random.nextInt(words.size)]
+            val record: ProducerRecord<String, String> = ProducerRecord("test-topic", number.toString(), word)
+            kafkaProducer.send(record)
+            println("Sent message: $number -> $word")
+        }
+    }, 0, hour)
+
+    println("Producer started. Press any key to stop...")
+    readLine()
+
+    timer.cancel()
     kafkaProducer.close()
+    println("Producer stopped.")
 }
